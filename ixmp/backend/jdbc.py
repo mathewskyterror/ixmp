@@ -486,8 +486,8 @@ class JDBCBackend(CachingBackend):
 
     def last_update(self, ts):
         timestamp = self.jindex[ts].getLastUpdateTimestamp()
-        if timestamp:
-            timestamp.toString()
+        if timestamp is not None:
+            return timestamp.toString()
         else:
             return timestamp  # None
 
