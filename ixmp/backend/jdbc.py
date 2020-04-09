@@ -484,6 +484,11 @@ class JDBCBackend(CachingBackend):
             ts.scheme = jobj.getScheme()
 
     def del_ts(self, ts):
+        # Invalidate CachingBackend entries associated with *ts*
+        super().del_ts(ts)
+
+        # Free the reference to the Java TimeSeries/Scenario object, so it can
+        # be GC'd
         del self.jindex[ts]
 
     def check_out(self, ts, timeseries_only):
