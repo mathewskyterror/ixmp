@@ -977,6 +977,9 @@ class Backend(ABC):
 class CachingBackend(Backend):
     """Backend with additional features for caching data."""
 
+    #: :obj:`True` if caching is enabled.
+    cache_enabled = True
+
     #: Cache of values. Keys are given by :meth:`_cache_key`; values depend on
     #: the subclass' usage of the cache.
     _cache = {}
@@ -987,8 +990,10 @@ class CachingBackend(Backend):
 
     # Backend API methods
 
-    def __init__(self):
+    def __init__(self, cache_enabled=True):
         super().__init__()
+
+        self.cache_enabled = cache_enabled
 
         # Empty the cache
         self._cache = {}
@@ -1042,7 +1047,7 @@ class CachingBackend(Backend):
         """
         key = self._cache_key(ts, ix_type, name, filters)
 
-        if key in self._cache:
+        if self.cache_enabled and key in self._cache:
             self._cache_hit[key] = self._cache_hit.setdefault(key, 0) + 1
             return copy(self._cache[key])
         else:
@@ -1057,6 +1062,10 @@ class CachingBackend(Backend):
             :obj:`True` if the key was already in the cache and its value was
             overwritten.
         """
+        if not self.cache_enabled:
+            # Don't store anything if cache is disabled
+            return False
+
         key = self._cache_key(ts, ix_type, name, filters)
 
         refreshed = key in self._cache

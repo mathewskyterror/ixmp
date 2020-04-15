@@ -122,7 +122,7 @@ def _raise_jexception(exc, msg='unhandled Java exception: '):
 
 
 class JDBCBackend(CachingBackend):
-    """Backend using JPype/JDBC to connect to Oracle and HyperSQLDB instances.
+    """Backend using JPype/JDBC to connect to Oracle and HyperSQL databases.
 
     Parameters
     ----------
@@ -138,6 +138,9 @@ class JDBCBackend(CachingBackend):
         Database user name.
     password : str, optional
         Database user password.
+    cache : bool, optional
+        If :obj:`True` (the default), cache Python objects after conversion
+        from Java objects.
     jvmargs : str, optional
         Java Virtual Machine arguments. See :meth:`.start_jvm`.
     dbprops : path-like, optional
@@ -182,6 +185,9 @@ class JDBCBackend(CachingBackend):
 
         start_jvm(jvmargs)
 
+        # Invoke the parent constructor to initialize the cache
+        super().__init__(cache_enabled=kwargs.pop('cache', True))
+
         # Create a database properties object
         if properties:
             # ...using file contents
@@ -215,9 +221,6 @@ class JDBCBackend(CachingBackend):
             elif jclass.endswith('FlywayException'):
                 msg = f'when initializing database:'
             _raise_jexception(e, f'{msg}\n(Java: {jclass})')
-
-        # Invoke the parent constructor to initialize the cache
-        super().__init__()
 
     # Platform methods
 
