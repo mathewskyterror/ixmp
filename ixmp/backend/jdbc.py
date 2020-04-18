@@ -195,6 +195,9 @@ class JDBCBackend(CachingBackend):
         # Invoke the parent constructor to initialize the cache
         super().__init__(cache_enabled=kwargs.pop('cache', True))
 
+        # Extract a log_level keyword argument before _create_properties()
+        log_level = kwargs.pop('log_level', 'INFO')
+
         # Create a database properties object
         if properties:
             # ...using file contents
@@ -214,7 +217,6 @@ class JDBCBackend(CachingBackend):
 
         try:
             self.jobj = java.Platform('Python', properties)
-            self.set_log_level('INFO')
         except java.NoClassDefFoundError as e:  # pragma: no cover
             raise NameError(f'{e}\nCheck that dependencies of ixmp.jar are '
                             f"included in {Path(__file__).parents[2] / 'lib'}")
@@ -228,6 +230,9 @@ class JDBCBackend(CachingBackend):
             elif jclass.endswith('FlywayException'):
                 msg = f'when initializing database:'
             _raise_jexception(e, f'{msg}\n(Java: {jclass})')
+
+        # Set the log level
+        self.set_log_level(log_level)
 
     # Platform methods
 
