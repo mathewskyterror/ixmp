@@ -5,6 +5,7 @@ graphviz
 JPype1!=0.7.2
 jupyter
 numpydoc
+memory_profiler
 pandas
 pint
 pytest-cov
